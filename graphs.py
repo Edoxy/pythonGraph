@@ -148,7 +148,10 @@ class DirectedGraph:
             #out
             foud = False
             for n_out in self.nodes[edge[0]].neighbours_out:
-                if n_out[0].id == edge[1]:#contollo che edge1 non compaia nella lista out di edge0
+                if n_out[0].id == edge[1]:
+                    
+                    #contollo che edge1 non compaia nella lista out di edge0
+                    n_out[1] = edge_labels.copy()
                     
 
 
