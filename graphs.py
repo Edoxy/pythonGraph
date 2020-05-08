@@ -1,13 +1,11 @@
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
-    labels = {}
-  
 
     def __init__(self, id = None, **labels):
         """Costruttore della classe"""
         self.id = id #ID del nodo
         self.labels = labels.copy() #dizionario degli attributi del nodo
-        self.neighbours_out = [] #lista dei nodo out, contiene anceh le info sul nodo
+        self.neighbours_out = [] #lista dei nodo out, contiene anche le info sul nodo
         self.neighbours_in = [] #lista dei nodi in
 
   
@@ -17,15 +15,15 @@ class DirGraphNode:
         deg_out = 0 
         deg_in = 0
         for x in self.neighbours_out:
-            deg_out = deg_out + 1
+            deg_out += 1
         for x in self.neighbours_in:
-            deg_out = deg_in + 1
+            deg_out += 1
         return (deg_out, deg_in)
 
 
 
     def get_edge_labels(self, *nodelist):
-        """Restituisce una lista contenente i dizionari dei lati"""
+        '''Restituisce una lista contenente i dizionari dei lati'''
         
         lista_out = []
         
