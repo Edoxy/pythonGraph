@@ -89,7 +89,7 @@ class DirGraphNode:
         print('NODI OUT nel nodo id:', self.id)
      
         for x in self.neighbours_out:
-            print(x[0].id)
+            print(x[0].id, ' ', x[1])
 
 #############################################################################################
 
@@ -101,7 +101,7 @@ class DirectedGraph:
     def __init__(self, name, default_weight):
         '''Costruttore classe grafo orientato'''
         self.name = name
-        self.default_weight
+        self.default_weight =default_weight
         self.nodes = {} #dizionario{id : oggetto}
 
 
@@ -119,7 +119,7 @@ class DirectedGraph:
     def auto_add_nodes(self, N, **labels):
         '''Aggiunge automaticamente N nodi generando gli id'''
         #ricerca del max id
-        max_id = -1
+        max_id = 0
         for id in set(self.nodes): #crea insieme delle chiavi di self.nodes
             if id > max_id:
                 max_id = id #memorizza il max
@@ -152,17 +152,24 @@ class DirectedGraph:
                 #contollo se edge1 compare nella lista out di edge0
                 if n_out[0].id == id_edge[1]:
                     found = True
-                    n_out[1] = edge_labels.copy()
+                    #n_out[1] = edge_labels.copy()
             #chiama i costruttori del lato in ambo i sensi
             if not found:
                 self.nodes[id_edge[0]].add_neighbours_out(*[self.nodes[id_edge[1]]], **edge_labels.copy())
-                self.nodes[id_edge[1]].add_neighbours_out(*[self.nodes[id_edge[0]]])
+                self.nodes[id_edge[1]].add_neighbours_in(*[self.nodes[id_edge[0]]])
                     
 
 
     def rmv_nodes(self, *node_id_list):
         '''Rimuove i nodi dal grafico con gli id specificati'''
 
+    def print_info(self):
+        '''Stampa informazioni sul grafo'''
+        for id_node in self.nodes:
+            self.nodes[id_node].print_nodes_info()
+
+
+'''
 #prova dei nodi
 #step 1
 labels = {'colore' : 'giallo'}
@@ -193,3 +200,14 @@ nodo_2.add_neighbours_out(*[nodo_3], **{'weight' : 1})
 nodo_1.print_nodes_info()
 nodo_2.print_nodes_info()
 nodo_3.print_nodes_info()
+'''
+#Test funzionamento Grafi
+Grafo_1 = DirectedGraph('mappa_ipad_1', 1)
+Grafo_1.auto_add_nodes(3)
+Grafo_1.add_edges(*[(1, 6)])
+
+Grafo_1.add_edges(*[(1, 6), (2, 1), (3, 5), (1, 4), (3, 6), (4, 5)])
+Grafo_1.add_edges(*[(2, 4)],**{'weight' : 2})
+Grafo_1.add_edges(*[(4, 3)], **{'weight' : 3})
+Grafo_1.add_edges(*[(6, 2), (2, 6)], **{'weight' : 4})
+Grafo_1.print_info()
