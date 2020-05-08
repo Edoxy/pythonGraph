@@ -99,9 +99,10 @@ class DirectedGraph:
 
 
     def __init__(self, name, default_weight):
+        '''Costruttore classe grafo orientato'''
         self.name = name
         self.default_weight
-        self.nodes = {}
+        self.nodes = {} #dizionario{id : oggetto}
 
 
 
@@ -129,29 +130,38 @@ class DirectedGraph:
 
 
 
-    def add_edges(self, *edge_list, **edge_labels):
-        '''Aggiunge lati ai nodi presenti nell'elenco o se necessario ne crea di nuovi'''
+    def add_edges(self, *edge_id_list, **edge_labels):
+        '''Aggiunge lati ai nodi presenti nell'elenco o se necessario ne crea di nuovi
+        *edge_list = lista di tuple di id dei nodi
+        '''
         #controllo che il peso sia presente tra le etichette
         if 'weight' not in edge_labels:
             edge_labels['weight'] = self.default_weight
        
-        for edge in edge_list:
+        for id_edge in edge_id_list:
              #verifica esistenza nodi
-            if edge[0] not in self.nodes:   #verifica presenza del primo   
-                self.nodes[edge[0]] = DirGraphNode(edge[0])
-            elif edge[1] not in self.nodes: #verifica presenza secondo nodo
-                self.nodes[edge[1]] = DirGraphNode(edge[1])
+            if id_edge[0] not in self.nodes:   #verifica presenza del primo   
+                self.nodes[id_edge[0]] = DirGraphNode(id_edge[0])
+            elif id_edge[1] not in self.nodes: #verifica presenza secondo nodo
+                self.nodes[id_edge[1]] = DirGraphNode(id_edge[1])
 
-            #verifica esistenza edge
-            #out
-            foud = False
-            for n_out in self.nodes[edge[0]].neighbours_out:
-                if n_out[0].id == edge[1]:
-                    
-                    #contollo che edge1 non compaia nella lista out di edge0
+            #verifica esistenza edge out, così posso già cambiare il dizionario
+
+            found = False
+            for n_out in self.nodes[id_edge[0]].neighbours_out:
+                #contollo se edge1 compare nella lista out di edge0
+                if n_out[0].id == id_edge[1]:
+                    found = True
                     n_out[1] = edge_labels.copy()
+            #chiama i costruttori del lato in ambo i sensi
+            if not found:
+                self.nodes[id_edge[0]].add_neighbours_out(*[self.nodes[id_edge[1]]], **edge_labels.copy())
+                self.nodes[id_edge[1]].add_neighbours_out(*[self.nodes[id_edge[0]]])
                     
 
+
+    def rmv_nodes(self, *node_id_list):
+        '''Rimuove i nodi dal grafico con gli id specificati'''
 
 #prova dei nodi
 #step 1
