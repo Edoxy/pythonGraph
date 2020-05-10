@@ -165,7 +165,33 @@ class DirectedGraph:
 
     def rmv_nodes(self, *node_id_list):
         '''Rimuove i nodi dal grafico con gli id specificati'''
-        
+        for id in node_id_list:
+             if id in self.nodes:
+                 #elimino i lati collegati a id poi elimino id
+                 for x in self.nodes[id].neighbours_out:
+                     self.nodes[x].rmv_neighbours_in(id)
+                 for x in self.nodes[id].neighbours_in:
+                     self.nodes[x].rmv_neighbours_out(id)    
+                 self.nodes.pop(id)
+
+
+    def rmv_edges(self, *edge_id_list):
+        '''Rimuove i lati con gli id specificati'''
+        for id in edge_id_list:
+            #controllo esistenza dei 2 nodi
+            if id[0] in self.nodes:
+                if id[1] in self.nodes:
+                    self.nodes[id[0]].rmv_neighbours_out(id[1])
+                    self.nodes[id[1]].rmv_neighbours_in(id[0])
+
+    
+    def get_edges(self):
+        '''Restituisce tutti i lati del grafo'''
+        edge_list=[]
+        for x in self.nodes:
+            for y in self.nodes[x].neighbours_out:
+                edge_list.append((self.nodes[x],self.nodes[y]))
+        return (edge_list)        
 
 
     def print_info(self):
