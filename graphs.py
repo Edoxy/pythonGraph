@@ -173,39 +173,4 @@ class DirectedGraph:
         for id_node in self.nodes:
             self.nodes[id_node].print_nodes_info()
 
-##############################################################################
-'''
-#prova dei nodi
-#step 1
-labels = {'colore' : 'giallo'}
-nodo_1 = DirGraphNode(1, **labels)
-nodo_2 = DirGraphNode(2)
-nodo_3 = DirGraphNode(3, **{'colore' : 'blu'})
-
-nodo_1.add_neighbours_in(*[nodo_2, nodo_3])
-nodo_1.add_neighbours_out(*[nodo_2], **{'weight' : 4})
-nodo_2.add_neighbours_in(*[nodo_3, nodo_1])
-nodo_2.add_neighbours_out(*[nodo_1], **{'weight' : 4})
-nodo_3.add_neighbours_out(*[nodo_1], **{'weight' : 2})
-nodo_3.add_neighbours_out(*[nodo_2], **{'weight' : 3})
-
-#verifica dei nodi in
-nodo_1.print_nodes_info()
-nodo_2.print_nodes_info()
-nodo_3.print_nodes_info()
-
-#step2
-print('\nFase 2')
-nodo_3.rmv_neighbours_out(*[nodo_2])
-nodo_2.rmv_neighbours_in(*[nodo_3])
-nodo_3.add_neighbours_in(*[nodo_2])
-nodo_2.add_neighbours_out(*[nodo_3], **{'weight' : 1})
-
-#verifica dei nodi in
-nodo_1.print_nodes_info()
-nodo_2.print_nodes_info()
-nodo_3.print_nodes_info()
-'''
-
-
-
+##############################################################################################
