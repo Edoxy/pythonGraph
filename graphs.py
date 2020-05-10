@@ -139,10 +139,10 @@ class DirectedGraph:
             edge_labels['weight'] = self.default_weight
        
         for id_edge in edge_id_list:
-             #verifica esistenza nodi
+            #verifica esistenza nodi
             if id_edge[0] not in self.nodes:   #verifica presenza del primo   
                 self.nodes[id_edge[0]] = DirGraphNode(id_edge[0])
-            elif id_edge[1] not in self.nodes: #verifica presenza secondo nodo
+            if id_edge[1] not in self.nodes: #verifica presenza secondo nodo
                 self.nodes[id_edge[1]] = DirGraphNode(id_edge[1])
 
             #verifica esistenza edge out, così posso già cambiare il dizionario
@@ -153,7 +153,8 @@ class DirectedGraph:
                 if n_out[0].id == id_edge[1]:
                     found = True
                     self.nodes[id_edge[0]].rmv_neighbours_out(n_out[0])
-                    self.nodes[id_edge[0]].add_neighbours_out(*[self.nodes[id_edge[1]]], **edge_labels.copy())                  
+                    self.nodes[id_edge[0]].add_neighbours_out(*[self.nodes[id_edge[1]]], **edge_labels.copy())
+                                    
 
             #chiama i costruttori del lato in ambo i sensi
             if not found:
@@ -206,16 +207,5 @@ nodo_2.print_nodes_info()
 nodo_3.print_nodes_info()
 '''
 
-#Test funzionamento Grafi_1
-Grafo_1 = DirectedGraph('mappa_ipad_1', 1)
-Grafo_1.auto_add_nodes(3)
-Grafo_1.add_edges(*[(1, 6)])
 
-Grafo_1.add_edges(*[(1, 6), (2, 1), (3, 5), (1, 4), (3, 6), (4, 5)])
-Grafo_1.add_edges(*[(2, 4)],**{'weight' : 2})
-#Grafo_1.add_edges(*[(2, 4)],**{'weight' : 16})
-Grafo_1.add_edges(*[(4, 3)], **{'weight' : 3})
-Grafo_1.add_edges(*[(6, 2)], **{'weight' : 4})
-Grafo_1.add_edges(*[(2, 6)], **{'weight' : 8})
-Grafo_1.print_info()
 
