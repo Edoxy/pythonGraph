@@ -8,7 +8,19 @@ class DirGraphNode:
         self.neighbours_out = [] #lista dei nodo out, contiene anche le info sul nodo
         self.neighbours_in = [] #lista dei nodi in
 
-  
+    def get_neighbours(self):
+        '''Restituisce lista di vicini del nodo'''
+        n_out = []
+        n_in = []
+
+        for x in self.neighbours_out:
+            n_out.append(x[0])
+        for x in self.neighbours_in:
+            n_in.append(x)
+        
+        return((n_out, n_in))            
+
+
 
     def degrees(self):
         '''Restituisce il grado OUT e IN del nodo scelto'''
@@ -169,9 +181,9 @@ class DirectedGraph:
              if id in self.nodes:
                  #elimino i lati collegati a id poi elimino id
                  for x in self.nodes[id].neighbours_out:
-                     self.nodes[x].rmv_neighbours_in(id)
+                     self.nodes[x].rmv_neighbours_in(*[self.nodes[id]])
                  for x in self.nodes[id].neighbours_in:
-                     self.nodes[x].rmv_neighbours_out(id)    
+                     self.nodes[x].rmv_neighbours_out(*[self.nodes[id]])    
                  self.nodes.pop(id)
 
 
@@ -181,18 +193,50 @@ class DirectedGraph:
             #controllo esistenza dei 2 nodi
             if id[0] in self.nodes:
                 if id[1] in self.nodes:
-                    self.nodes[id[0]].rmv_neighbours_out(id[1])
-                    self.nodes[id[1]].rmv_neighbours_in(id[0])
+                    self.nodes[id[0]].rmv_neighbours_out(*[self.nodes[id]])
+                    self.nodes[id[1]].rmv_neighbours_in(*[self.nodes[id]])
 
     
     def get_edges(self):
         '''Restituisce tutti i lati del grafo'''
-        edge_list=[]
+        edge_list = []
         for x in self.nodes:
             for y in self.nodes[x].neighbours_out:
                 edge_list.append((self.nodes[x],self.nodes[y]))
         return (edge_list)        
 
+    def get_edge_labels(self, *edge_list):
+        '''Restituisce i dizionari dei lati specificati '''
+        labels_list = []
+
+        for new_edge in edge_list:
+            if new_edge[0] in self.nodes:
+                #controllo se il lato esiste
+                found = False
+                for x in self.nodes[new_edge[0]].neighbours_out:
+                    if x[0].id == new_edge[1]:
+                        found = True
+                        labels_list.append(x[1])
+                    if not found:
+                        #se il lato non esiste aggiungo none
+                        labels_list.append(None)
+        return (labels_list)                
+
+
+    def size(self):
+        '''Restituisce le dimensioni del grafo'''
+        count_nodes = 0
+        count_edges = 0
+        for node in self.nodes:
+            count_nodes += 1
+            for edge in self.nodes[node].neighbours_out:
+                count_edges += 1
+        return ((count_nodes,count_edges))   
+
+
+    def copy(self):
+        '''Restituisce una copia del grafo'''
+              
 
     def print_info(self):
         '''Stampa informazioni sul grafo'''
