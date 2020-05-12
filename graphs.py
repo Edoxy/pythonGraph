@@ -8,6 +8,8 @@ class DirGraphNode:
         self.neighbours_out = [] #lista dei nodo out, contiene anche le info sul nodo
         self.neighbours_in = [] #lista dei nodi in
 
+
+
     def get_neighbours(self):
         '''Restituisce lista di vicini del nodo'''
         n_out = []
@@ -18,7 +20,7 @@ class DirGraphNode:
         for x in self.neighbours_in:
             n_in.append(x)
         
-        return((n_out, n_in))            
+        return (n_out, n_in)
 
 
 
@@ -29,64 +31,60 @@ class DirGraphNode:
         for x in self.neighbours_out:
             deg_out += 1
         for x in self.neighbours_in:
-            deg_out += 1
+            deg_in += 1
         return (deg_out, deg_in)
 
 
 
-    def get_edge_labels(self, *nodelist):
+    def get_edge_labels(self, node_list):
         '''Restituisce una lista contenente i dizionari dei lati'''
         
         lista_out = []
         
-        for new_node in nodelist:
+        for node in node_list:
             for x in self.neighbours_out:
-                if (new_node.id == x[0].id):
+                if (node.id == x[0].id):
                     lista_out.append(x[1])
         return lista_out 
 
 
 
-    def add_neighbours_out(self, *node_list, **edge_labels):
+    def add_neighbours_out(self, node_list, **edge_labels):
         """Aggiunge un elenco di nodi che si collegano OUT"""
 
-    #Controllo presenza del nodo
-        for new_node in node_list:
-            found = 0
-            for x in self.neighbours_out:
-                if (x[0].id == new_node.id):  #se il nodo è già presente controllo sugli id
-                    x[1] = edge_labels.copy()
-                    found = 1
-            if (found == 0): #se il nodo non è presente in tutta la lista
-                new_edge_labels = edge_labels.copy()
-                self.neighbours_out.append((new_node, new_edge_labels)) #aggiunta della tupla alla lista
-            
+        neighbours_out, _ = self.get_neighbours()
+        for node in node_list:
+            if node not in neighbours_out: #viene eseguito solo se il nodo non è già presente
+                self.neighbours_out.append((node, edge_labels.copy()))
+            else: #uso index per trovare l'indice della posizione del nodo che cerchiamo
+                ind_node = neighbours_out.index(node)
+                self.neighbours_out[ind_node][1].update(edge_labels)
+           
   
 
-    def add_neighbours_in(self, *node_list):
+    def add_neighbours_in(self, node_list):
         """Aggiunge un elenco di nodi che si collegano IN"""
-        for new_node in node_list:
-            found = 0
-            for x in self.neighbours_in:
-                if (x.id == new_node.id):  #se il nodo è già presente controllo sugli id
-                    found = 1
-            if (found == 0): #se il nodo non è presente in tutta la lista allora si aggiunge
-                self.neighbours_in.append(new_node)
-
-
-
-    def rmv_neighbours_out(self, *node_list):
         for node in node_list:
-            for x in self.neighbours_out:
-                if (x[0].id == node.id):
-                    self.neighbours_out.remove(x)
-                
+            if node not in self.neighbours_in:
+                self.neighbours_in.append(node)
+            else :
+                print('il nodo è già presente')#vedere come fare i warning
 
 
-    def rmv_neighbours_in(self, *node_list):
+
+    def rmv_neighbours_out(self, node_list):
+        for node in node_list:
+            neighbours_out, _ = self.get_neighbours()
+            if node in neighbours_out:
+                ind_node = neighbours_out.index(node)
+                self.neighbours_out.remove(self.neighbours_out[ind_node])
+
+
+
+    def rmv_neighbours_in(self, node_list):
         for node in node_list:
             for x in self.neighbours_in:
-                if (x.id == node.id):
+                if x in self.neighbours_in:
                     self.neighbours_in.remove(x)
 
 
@@ -110,22 +108,24 @@ class DirectedGraph:
 
 
 
-    def __init__(self, name, default_weight):
+    def __init__(self, name = 'Nuovo Grafo', default_weight = 1, Id_list = []):
         '''Costruttore classe grafo orientato'''
         self.name = name
         self.default_weight =default_weight
         self.nodes = {} #dizionario{id : oggetto}
+        self.add_nodes(Id_list)
 
 
 
-    def add_nodes(self, *new_nodes_id, **labels):
+    def add_nodes(self, new_nodes_id, **labels):
         """Aggiunge nodi"""
         #controllo nodi
         for id in new_nodes_id:
             if id in self.nodes:
-                self.nodes[id].labels = labels.copy() #modifica dei labels già esistenti
+                self.nodes[id].labels.update(labels) #modifica dei labels già esistenti
             else:
-                self.nodes[id] = DirGraphNode(id, labels.copy()) #creazione di un nuovo nodo
+                self.nodes[id] = DirGraphNode(id, **labels.copy()) #creazione di un nuovo nodo
+
 
 
     def auto_add_nodes(self, N, **labels):
@@ -142,7 +142,7 @@ class DirectedGraph:
 
 
 
-    def add_edges(self, *edge_id_list, **edge_labels):
+    def add_edges(self, edge_id_list, **edge_labels):
         '''Aggiunge lati ai nodi presenti nell'elenco o se necessario ne crea di nuovi
         *edge_list = lista di tuple di id dei nodi
         '''
@@ -159,42 +159,39 @@ class DirectedGraph:
 
             #verifica esistenza edge out, così posso già cambiare il dizionario
 
-            found = False
-            for n_out in self.nodes[id_edge[0]].neighbours_out:
-                #contollo se edge1 compare nella lista out di edge0
-                if n_out[0].id == id_edge[1]:
-                    found = True
-                    self.nodes[id_edge[0]].rmv_neighbours_out(n_out[0])
-                    self.nodes[id_edge[0]].add_neighbours_out(*[self.nodes[id_edge[1]]], **edge_labels.copy())
-                                    
-
-            #chiama i costruttori del lato in ambo i sensi
-            if not found:
-                self.nodes[id_edge[0]].add_neighbours_out(*[self.nodes[id_edge[1]]], **edge_labels.copy())
-                self.nodes[id_edge[1]].add_neighbours_in(*[self.nodes[id_edge[0]]])
+            neighbours_out, _ = self.nodes[id_edge[0]].get_neighbours()
+            if self.nodes[id_edge[1]] not in neighbours_out:
+                self.nodes[id_edge[0]].add_neighbours_out([self.nodes[id_edge[1]]], **edge_labels.copy())
+                self.nodes[id_edge[1]].add_neighbours_in([self.nodes[id_edge[0]]])
+            else:
+                ind_node = neighbours_out.index(self.nodes[id_edge[1]])
+                self.nodes[id_edge[0]].neighbours_out[ind_node][1].update(edge_labels)
                     
 
 
-    def rmv_nodes(self, *node_id_list):
+    def rmv_nodes(self, node_id_list):
         '''Rimuove i nodi dal grafico con gli id specificati'''
+        lista_edges = []
         for id in node_id_list:
-             if id in self.nodes:
-                 #elimino i lati collegati a id poi elimino id
-                 for x in self.nodes[id].neighbours_out:
-                     self.nodes[x].rmv_neighbours_in(*[self.nodes[id]])
-                 for x in self.nodes[id].neighbours_in:
-                     self.nodes[x].rmv_neighbours_out(*[self.nodes[id]])    
-                 self.nodes.pop(id)
+            if id in self.nodes:
+                for x in self.nodes[id].neighbours_out:
+                    lista_edges.append((id, x[0].id))
+                for x in self.nodes[id].neighbours_in:
+                    lista_edges.append((x.id, id))
+        self.rmv_edges(lista_edges)
+        '''for id in node_id_list:
+                del self.nodes[id]'''
+        
 
 
-    def rmv_edges(self, *edge_id_list):
+    def rmv_edges(self, edge_id_list):
         '''Rimuove i lati con gli id specificati'''
         for id in edge_id_list:
             #controllo esistenza dei 2 nodi
             if id[0] in self.nodes:
                 if id[1] in self.nodes:
-                    self.nodes[id[0]].rmv_neighbours_out(*[self.nodes[id]])
-                    self.nodes[id[1]].rmv_neighbours_in(*[self.nodes[id]])
+                    self.nodes[id[0]].rmv_neighbours_out([self.nodes[id[1]]])
+                    self.nodes[id[1]].rmv_neighbours_in([self.nodes[id[0]]])
 
     
     def get_edges(self):
