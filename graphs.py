@@ -179,8 +179,8 @@ class DirectedGraph:
                 for x in self.nodes[id].neighbours_in:
                     lista_edges.append((x.id, id))
         self.rmv_edges(lista_edges)
-        '''for id in node_id_list:
-                del self.nodes[id]'''
+        for id in node_id_list:
+                del self.nodes[id]
         
 
 
