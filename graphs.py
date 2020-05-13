@@ -83,9 +83,8 @@ class DirGraphNode:
 
     def rmv_neighbours_in(self, node_list):
         for node in node_list:
-            for x in self.neighbours_in:
-                if x in self.neighbours_in:
-                    self.neighbours_in.remove(x)
+            if node in self.neighbours_in:
+                self.neighbours_in.remove(node)
 
 
 
