@@ -197,20 +197,27 @@ class DirectedGraph:
         '''Restituisce tutti i lati del grafo'''
         edge_list = []
         for x in self.nodes:
-            for y in self.nodes[x].neighbours_out:
-                edge_list.append((self.nodes[x],self.nodes[y]))
+            #creo lista di successori di x
+            neighbours_out, _ = self.nodes[x].get_neighbours
+            for y in neighbours_out:
+                edge_list.append(self.nodes[x],self.nodes[y])
         return (edge_list)        
 
-    def get_edge_labels(self, *edge_list):
+        '''for x in self.nodes:
+            for y in self.nodes[x].neighbours_out:
+                edge_list.append((self.nodes[x],self.nodes[y]))
+        return (edge_list)'''     
+
+    def get_edge_labels(self, edge_list):
         '''Restituisce i dizionari dei lati specificati '''
         labels_list = []
 
-        for new_edge in edge_list:
-            if new_edge[0] in self.nodes:
+        for edge in edge_list:
+            if edge[0] in self.nodes:
                 #controllo se il lato esiste
                 found = False
-                for x in self.nodes[new_edge[0]].neighbours_out:
-                    if x[0].id == new_edge[1]:
+                for x in self.nodes[edge[0]].neighbours_out:
+                    if x[0].id == edge[1]:
                         found = True
                         labels_list.append(x[1])
                     if not found:
@@ -227,12 +234,32 @@ class DirectedGraph:
             count_nodes += 1
             for edge in self.nodes[node].neighbours_out:
                 count_edges += 1
-        return ((count_nodes,count_edges))   
+        return (count_nodes,count_edges)   
 
 
     def copy(self):
         '''Restituisce una copia del grafo'''
-              
+
+
+
+    def compute_adjacency(self):
+        '''Restituisce la matrice di adiacenza'''
+        A = [[]]
+        for node_1 in self.nodes:
+            for  node_2 in self.nodes:
+                if node_2 in self.nodes[node_1].neighbours_out[0]:
+                    A[node_1[node_2]] = self.nodes[node_1].neighbours_out[1['weight']]
+                else:
+                    A[node_1[node_2]] = 0
+        return (A)            
+
+
+    def add_from_adjacency(self,A):
+        '''Aggiunge nuovi nodi al grafo e li collega tra loro secondo la matrice A'''
+
+
+
+
 
     def print_info(self):
         '''Stampa informazioni sul grafo'''
