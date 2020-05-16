@@ -277,6 +277,15 @@ class DirectedGraph:
 
 
 
+    def add_graph(self, new_graph):
+        '''Dato un nuovo Grafo, lo connette a quello attuale; se i nodi sono già esistenti si aggirnano solo le connessioni'''
+        new_edges = new_graph.get_edges()
+        new_edges_lables = new_graph.get_edge_labels(new_edges)#idea di implementare un default?    
+        for i in range(len(new_edges)):
+            self.add_edges([new_edges[i]], **new_edges_lables[1])
+
+
+
     def print_info(self):
         '''Stampa informazioni sul grafo'''
         for id_node in self.nodes:
