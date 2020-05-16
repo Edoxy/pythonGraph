@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
 
@@ -194,56 +196,60 @@ class DirectedGraph:
 
     
     def get_edges(self):
-        '''Restituisce tutti i lati del grafo'''
+        '''Restituisce tutti i lati del grafo in una lista come tuple di id'''
         edge_list = []
         for x in self.nodes:
             #creo lista di successori di x
-            neighbours_out, _ = self.nodes[x].get_neighbours
+            neighbours_out, _ = self.nodes[x].get_neighbours()
             for y in neighbours_out:
-                edge_list.append(self.nodes[x],self.nodes[y])
+                edge_list.append((x, y.id))
         return (edge_list)        
 
-        '''for x in self.nodes:
-            for y in self.nodes[x].neighbours_out:
-                edge_list.append((self.nodes[x],self.nodes[y]))
-        return (edge_list)'''     
+
 
     def get_edge_labels(self, edge_list):
         '''Restituisce i dizionari dei lati specificati '''
         labels_list = []
 
         for edge in edge_list:
-            if edge[0] in self.nodes:
-                #controllo se il lato esiste
-                found = False
-                for x in self.nodes[edge[0]].neighbours_out:
-                    if x[0].id == edge[1]:
-                        found = True
-                        labels_list.append(x[1])
-                    if not found:
-                        #se il lato non esiste aggiungo none
-                        labels_list.append(None)
-        return (labels_list)                
+            #controllo se il primo nodo esiste
+            if (edge[0] in self.nodes) & (edge[1] in self.nodes):
+                #controllo se il lato esite
+                neighbours_out, _ = self.nodes[edge[0]].get_neighbours()
+
+                if self.nodes[edge[1]] in neighbours_out:
+
+                    index = neighbours_out.index(self.nodes[edge[1]])
+                    labels_list.append(self.nodes[edge[0]].neighbours_out[index][1])
+                else:
+                    labels_list.append(None)
+            else:
+                labels_list.append(None)
+
+        return labels_list                
+
 
 
     def size(self):
         '''Restituisce le dimensioni del grafo'''
-        count_nodes = 0
-        count_edges = 0
-        for node in self.nodes:
-            count_nodes += 1
-            for edge in self.nodes[node].neighbours_out:
-                count_edges += 1
+
+        count_nodes = len(self.nodes)
+        count_edges = len(self.get_edges())
+            
         return (count_nodes,count_edges)   
 
 
     def copy(self):
         '''Restituisce una copia del grafo'''
+        Graph_Copy = DirectedGraph(self.name, self.default_weight)
+        Graph_Copy.nodes = deepcopy(self.nodes)
+        return Graph_Copy
+
 
 
 
     def compute_adjacency(self):
-        '''Restituisce la matrice di adiacenza'''
+
         A = [[]]
         for node_1 in self.nodes:
             for  node_2 in self.nodes:
@@ -251,7 +257,7 @@ class DirectedGraph:
                     A[node_1[node_2]] = self.nodes[node_1].neighbours_out[1['weight']]
                 else:
                     A[node_1[node_2]] = 0
-        return (A)            
+        return (A)           
 
 
     def add_from_adjacency(self,A):

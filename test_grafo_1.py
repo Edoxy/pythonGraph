@@ -18,7 +18,18 @@ Grafo_1.add_edges([(6, 2)], **{'weight' : 4})
 Grafo_1.add_edges([(2, 6)], **{'weight' : 4})
 
 Grafo_1.add_edges([(1, 7), (7, 1)])
+Grafo_2 = Grafo_1.copy()
 
 Grafo_1.rmv_nodes([7])
 Grafo_1.rmv_edges([(3, 5), (4, 3)])
 Grafo_1.print_info()
+
+print(Grafo_1.size())
+print(Grafo_1.get_edges())
+a =Grafo_1.get_edges()
+a.append((1, 7))
+print(Grafo_1.get_edge_labels(a))
+
+print(Grafo_2.size())
+print(Grafo_2.get_edges())
+print(Grafo_2.get_edge_labels(Grafo_2.get_edges()))
