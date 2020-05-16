@@ -197,6 +197,7 @@ class DirectedGraph:
                     self.nodes[id[1]].rmv_neighbours_in([self.nodes[id[0]]])
 
     
+
     def get_edges(self):
         '''Restituisce tutti i lati del grafo in una lista come tuple di id'''
         edge_list = []
@@ -241,12 +242,12 @@ class DirectedGraph:
         return (count_nodes,count_edges)   
 
 
+
     def copy(self):
         '''Restituisce una copia del grafo'''
         Graph_Copy = DirectedGraph(self.name, self.default_weight)
         Graph_Copy.nodes = deepcopy(self.nodes)
         return Graph_Copy
-
 
 
 
@@ -257,24 +258,22 @@ class DirectedGraph:
         edge_list = self.get_edges()
         labels_list = self.get_edge_labels(edge_list)
         i = 0
-
         for node_1 in self.nodes:
             j = 0
             for  node_2 in self.nodes:
                 if (node_1, node_2) in edge_list:
                     index = edge_list.index((node_1,node_2))
-                    A[i][j] = labels_list[index]['weight']
+                    A[i, j] = labels_list[index]['weight']
                 else:
-                    A[i][j] = 0
+                    A[i, j] = 0
                 j += 1
             i += 1    
         return (A)           
 
 
+
     def add_from_adjacency(self,A):
         '''Aggiunge nuovi nodi al grafo e li collega tra loro secondo la matrice A'''
-
-
 
 
 
