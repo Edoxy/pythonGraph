@@ -33,3 +33,5 @@ print(Grafo_1.get_edge_labels(a))
 print(Grafo_2.size())
 print(Grafo_2.get_edges())
 print(Grafo_2.get_edge_labels(Grafo_2.get_edges()))
+
+print(Grafo_1.compute_adjacency())

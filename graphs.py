@@ -1,4 +1,6 @@
 from copy import deepcopy
+import numpy
+from scipy.sparse import dok_matrix
 
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
@@ -250,13 +252,22 @@ class DirectedGraph:
 
     def compute_adjacency(self):
 
-        A = [[]]
+        N, _ = self.size()
+        A = dok_matrix((N,N))
+        edge_list = self.get_edges()
+        labels_list = self.get_edge_labels(edge_list)
+        i = 0
+
         for node_1 in self.nodes:
+            j = 0
             for  node_2 in self.nodes:
-                if node_2 in self.nodes[node_1].neighbours_out[0]:
-                    A[node_1[node_2]] = self.nodes[node_1].neighbours_out[1['weight']]
+                if (node_1, node_2) in edge_list:
+                    index = edge_list.index((node_1,node_2))
+                    A[i][j] = labels_list[index]['weight']
                 else:
-                    A[node_1[node_2]] = 0
+                    A[i][j] = 0
+                j += 1
+            i += 1    
         return (A)           
 
 
