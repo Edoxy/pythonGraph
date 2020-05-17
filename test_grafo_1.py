@@ -18,6 +18,7 @@ Grafo_1.add_edges([(6, 2)], **{'weight' : 4})
 Grafo_1.add_edges([(2, 6)], **{'weight' : 4})
 
 Grafo_1.add_edges([(1, 7), (7, 1)])
+#prova copia del grafo
 Grafo_2 = Grafo_1.copy()
 
 Grafo_1.rmv_nodes([7])
@@ -30,8 +31,13 @@ a =Grafo_1.get_edges()
 a.append((1, 7))
 print(Grafo_1.get_edge_labels(a))
 
+#funzionamento metodi:get_edges, get_edges_lables e size
 print(Grafo_2.size())
 print(Grafo_2.get_edges())
 print(Grafo_2.get_edge_labels(Grafo_2.get_edges()))
 
-print(Grafo_1.compute_adjacency())
+#funzionamento adjacency
+Grafo_3 = graphs.DirectedGraph('Tre', 1)
+Grafo_3.add_from_adjacency(Grafo_1.compute_adjacency(True))
+Grafo_3.print_info()
+

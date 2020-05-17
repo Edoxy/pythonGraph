@@ -1,6 +1,7 @@
 from copy import deepcopy
 import numpy
 from scipy.sparse import dok_matrix
+from math import sqrt
 
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
@@ -142,6 +143,7 @@ class DirectedGraph:
             max_id += 1
             self.nodes[max_id] = DirGraphNode(max_id)
             self.nodes[max_id].labels = labels.copy()
+        return (max_id - N + 1)
 
 
 
@@ -251,10 +253,13 @@ class DirectedGraph:
 
 
 
-    def compute_adjacency(self):
-
+    def compute_adjacency(self, typeSparsa = True):
+        '''costruisce la matrice di adiacenza sparsa(se non viene specificato nulla o True), densa se settata False'''
         N, _ = self.size()
-        A = dok_matrix((N,N))
+        if typeSparsa:
+            A = dok_matrix((N,N))
+        else:
+            A = numpy.identity(N)
         edge_list = self.get_edges()
         labels_list = self.get_edge_labels(edge_list)
         i = 0
@@ -268,12 +273,18 @@ class DirectedGraph:
                     A[i, j] = 0
                 j += 1
             i += 1    
-        return (A)           
+        return A           
 
 
 
-    def add_from_adjacency(self,A):
+    def add_from_adjacency(self,A_s):
         '''Aggiunge nuovi nodi al grafo e li collega tra loro secondo la matrice A'''
+        A = dok_matrix(A_s)#sparsizza
+        A = A_s
+        N, _ = A.get_shape()
+        id = self.auto_add_nodes(N)
+        for edge in A.keys():
+            self.add_edges([(edge[0] + id, edge[1] + id)], **{'weight' : A[edge]})
 
 
 
@@ -282,7 +293,8 @@ class DirectedGraph:
         new_edges = new_graph.get_edges()
         new_edges_lables = new_graph.get_edge_labels(new_edges)#idea di implementare un default?    
         for i in range(len(new_edges)):
-            self.add_edges([new_edges[i]], **new_edges_lables[1])
+
+            self.add_edges([new_edges[i]], **new_edges_lables[i])
 
 
 
