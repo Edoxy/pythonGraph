@@ -2,6 +2,7 @@ from copy import deepcopy
 import numpy
 from scipy.sparse import dok_matrix
 from math import sqrt
+import pickle as pkl
 
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
@@ -115,7 +116,7 @@ class DirectedGraph:
     def __init__(self, name = 'Nuovo Grafo', default_weight = 1, Id_list = []):
         '''Costruttore classe grafo orientato'''
         self.name = name
-        self.default_weight =default_weight
+        self.default_weight = default_weight
         self.nodes = {} #dizionario{id : oggetto}
         self.add_nodes(Id_list)
 
@@ -295,6 +296,79 @@ class DirectedGraph:
         for i in range(len(new_edges)):
 
             self.add_edges([new_edges[i]], **new_edges_lables[i])
+
+
+
+    def save(self, percorso_file, folder_name = self.name):
+        '''Genera una cartella all' interno del percorso_file contenente info sul grafo'''
+        lista_id_nodi=[]
+        for node in self.nodes.keys():
+            lista_id_nodi.append(node)
+
+        A = self.compute_adjacency(True)
+
+        ### Cartella = file contenente altri file (?)
+        with open(percorso_file, 'wb') as folder_name:
+            ### Primo file: lista dei nodi
+            id_list_pkl = open(percorso_file, 'wb')
+            pkl.dump(lista_id_nodi, id_list_pkl)
+            id_list_pkl.close()
+
+            ### Secondo file: matrice di adiacenza salvata come dictionary of keys
+            adjacency_pkl = open(percorso_file, 'wb')
+            pkl.dump(dict(A), adjacency_pkl)
+            adjacency_pkl.close()
+
+            ### Terzo file: dizionario a 3 chiavi(nome,peso di default,dizionario etichette dei nodi{ik:vk.labels})
+            node_labels = {self.nodes.keys() : self.nodes.labels}
+            diz_attributi = {'name' : self.name, 'default_weight' : self.default_weight, 'node_labels' : node_labels}
+            attributes_pkl = open(percorso_file, 'wb')
+            pkl.dump(diz_attributi, attributes_pkl)
+            attributes_pkl.close()
+
+            ### Quarto file: dizionario delle etichette dei lati (tranne il peso)
+            keys = []
+            values = []
+            for edge in self.get_edges():
+                keys.append(edge)
+                label = self.get_edge_labels(edge)
+                label.pop('weight')
+                values.append(label)
+            diz_edge_labels = {keys : values}
+            edge_labels_pkl = open(percorso_file, 'wb')
+            pkl.dump(diz_edge_labels, edge_labels_pkl)
+            edge_labels_pkl.close()
+
+        ####### I NOMI DEI 4 FILE LI HO MESSI COME "NOME_PKL INVECE CHE NOME.PKL SE NO MI DA ERRORE"
+        #### MANCA SECONDA PARTE DEL SUGGERIMENTO
+
+
+
+    def add_from_files(self, percorso_file):
+        '''Aggiunge al grafo G il grafo G' dalla cartella'''
+        ###Memorizzo le info dal file
+        with open(percorso_file, 'rb') as file:
+            id_list_pkl = open('id_list_pkl', 'rb')
+            node_list = pkl.load(id_list_pkl)
+            id_list_pkl.close()
+
+            adjacency_pkl = open('adjacency_pkl', 'rb')
+            A_diz = pkl.load('adjacency_pkl')
+            adjacency_pkl.close()
+
+            attributes_pkl = open('attributes_pkl', 'rb')
+            G_prime_attributes = pkl.load('attributes_pkl')
+            attributes_pkl.close()
+
+            edge_labels_pkl = open('adjacency_pkl', 'rb')
+            G_prime_edge_labels = pkl.load('edge_labels_pkl')
+            edge_labels_pkl.close()
+
+        for node in node_list:
+            self.add_nodes(node,G_prime_attributes['node_labels'][node])
+        for edge in G_prime_edge_labels:
+            self.add_edges(edge, G_prime_edge_labels['edge'])
+            self.add_edges(edge,A_diz[edge])  ### c' e' di sicuro un modo piu furbo con update del dizionario edge labels
 
 
 
