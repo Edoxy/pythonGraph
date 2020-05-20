@@ -1,8 +1,9 @@
 from copy import deepcopy
 import numpy
 from scipy.sparse import dok_matrix
-from math import sqrt
+from math import sqrt, sin, cos
 import pickle as pkl
+from matplotlib.pyplot import scatter, plot, text, show, figure, arrow
 
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
@@ -113,12 +114,13 @@ class DirectedGraph:
 
 
 
-    def __init__(self, name = 'Nuovo Grafo', default_weight = 1, Id_list = []):
+    def __init__(self, name = 'Nuovo Grafo', default_weight = 1, Id_list = [], Edge_list = [], Node_diz = {}, Edge_diz = {}):
         '''Costruttore classe grafo orientato'''
         self.name = name
         self.default_weight = default_weight
         self.nodes = {} #dizionario{id : oggetto}
-        self.add_nodes(Id_list)
+        self.add_nodes(Id_list, **Node_diz)
+        self.add_edges(Edge_list, **Edge_diz)
 
 
 
@@ -278,7 +280,7 @@ class DirectedGraph:
 
 
 
-    def add_from_adjacency(self,A_s):
+    def add_from_adjacency(self, A_s):
         '''Aggiunge nuovi nodi al grafo e li collega tra loro secondo la matrice A'''
         A = dok_matrix(A_s)#sparsizza
         A = A_s
@@ -299,8 +301,11 @@ class DirectedGraph:
 
 
 
-    def save(self, percorso_file, folder_name = self.name):
+    def save(self, percorso_file, folder_name = None):
         '''Genera una cartella all' interno del percorso_file contenente info sul grafo'''
+        if folder_name == None:
+            folder_name = self.name
+        
         lista_id_nodi=[]
         for node in self.nodes.keys():
             lista_id_nodi.append(node)
@@ -372,9 +377,43 @@ class DirectedGraph:
 
 
 
+    def plot(self):
+        '''rappresentazione grafica del grafo'''
+        #distribuzione sui punti di una circonferenza
+        n_nodi = len(self.nodes)
+        step = 1 / n_nodi
+        x = []
+        y = []
+        pos_node_plot = {}
+
+        fig = figure()
+        ax = fig.add_subplot(111)
+
+        for i in range(n_nodi):
+            x.append(cos(step * i * 2 * numpy.pi))
+            y.append(sin(step * i * 2 * numpy.pi))
+
+        i = 0
+        for id in self.nodes:
+            pos_node_plot.update({id : i})
+            ax.text(x[i], y[i], str(id), fontsize = 15, bbox=dict(facecolor='white', alpha=1))
+            i += 1
+             
+        ax.scatter(x, y, color='darkgreen', marker= "h")
+
+        for edge in self.get_edges():
+            x_i = [x[pos_node_plot[edge[0]]], x[pos_node_plot[edge[1]]] - x[pos_node_plot[edge[0]]]]
+            y_i = [y[pos_node_plot[edge[0]]], y[pos_node_plot[edge[1]]] - y[pos_node_plot[edge[0]]]]
+
+            ax.arrow(x_i[0], y_i[0], x_i[1], y_i[1], length_includes_head = True, head_width = 0.035, head_length = 0.1)
+
+        show()
+
     def print_info(self):
         '''Stampa informazioni sul grafo'''
         for id_node in self.nodes:
             self.nodes[id_node].print_nodes_info()
+
+
 
 ##############################################################################################

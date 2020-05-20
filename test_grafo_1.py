@@ -41,3 +41,5 @@ Grafo_3 = graphs.DirectedGraph('Tre', 1)
 Grafo_3.add_from_adjacency(Grafo_1.compute_adjacency(True))
 Grafo_3.print_info()
 
+Grafo_1.plot()
+Grafo_2.plot()
