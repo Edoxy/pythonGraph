@@ -40,6 +40,11 @@ print(Grafo_2.get_edge_labels(Grafo_2.get_edges()))
 Grafo_3 = graphs.DirectedGraph('Tre', 1)
 Grafo_3.add_from_adjacency(Grafo_1.compute_adjacency(True))
 Grafo_3.print_info()
+##Test plot
+#Grafo_1.plot()
 
-Grafo_1.plot()
-Grafo_2.plot()
+##test save
+#Grafo_1.save('C:\\Users\\Pace\\Desktop\\Salvataggio', 'Prova')
+Grafo_4 = graphs.DirectedGraph()
+Grafo_4.add_from_files('C:\\Users\\Pace\\Desktop\\Salvataggio\\Prova')
+Grafo_4.plot()

@@ -4,6 +4,7 @@ from scipy.sparse import dok_matrix
 from math import sqrt, sin, cos
 import pickle as pkl
 from matplotlib.pyplot import scatter, plot, text, show, figure, arrow
+import os
 
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
@@ -315,38 +316,41 @@ class DirectedGraph:
 
         A = self.compute_adjacency(True)
 
-        ### Cartella = file contenente altri file (?)
-        with open(percorso_file, 'wb') as folder_name:
-            ### Primo file: lista dei nodi
-            id_list = open(percorso_file, 'wb')
-            pkl.dump(lista_id_nodi, id_list)
-            id_list.close()
+        ### Creazione Cartella nel percorso
+        path = os.path.join(percorso_file, folder_name)
+        if not os.path.exists(path):
+            os.mkdir(path)
 
-            ### Secondo file: matrice di adiacenza salvata come dictionary of keys
-            adjacency = open(percorso_file, 'wb')
-            pkl.dump(dict(A), adjacency)
-            adjacency.close()
+        ### Primo file: lista dei nodi
+        id_list = open(path + '\\' + 'id_list.pkl', 'wb')
+        pkl.dump(lista_id_nodi, id_list)
+        id_list.close()
 
-            ### Terzo file: dizionario a 3 chiavi(nome,peso di default,dizionario etichette dei nodi{ik:vk.labels})
+        ### Secondo file: matrice di adiacenza salvata come dictionary of keys
+        adjacency = open(path + '\\' + 'adjacency.pkl', 'wb')
+        pkl.dump(dict(A), adjacency)
+        adjacency.close()
+
+        ### Terzo file: dizionario a 3 chiavi(nome,peso di default,dizionario etichette dei nodi{ik:vk.labels})
 
             
-            diz_attributi = {'name' : self.name, 'default_weight' : self.default_weight, 'node_labels' : node_labels}
-            attributes = open(percorso_file, 'wb')
-            pkl.dump(diz_attributi, attributes)
-            attributes.close()
+        diz_attributi = {'name' : self.name, 'default_weight' : self.default_weight, 'node_labels' : node_labels}
+        attributes = open(path + '\\' + 'attributes.pkl', 'wb')
+        pkl.dump(diz_attributi, attributes)
+        attributes.close()
 
-            ### Quarto file: dizionario delle etichette dei lati (tranne il peso)
+        ### Quarto file: dizionario delle etichette dei lati (tranne il peso)
             
-            diz_edge_labels = {}
-            for edge in self.get_edges():
+        diz_edge_labels = {}
+        for edge in self.get_edges():
                 
-                label = self.get_edge_labels(edge)
-                label.pop('weight')
-                diz_edge_labels.update({edge : label})
+            label = self.get_edge_labels([edge])
+            del label[0]['weight']
+            diz_edge_labels.update({edge : label[0]})
             
-            edge_labels = open(percorso_file, 'wb')
-            pkl.dump(diz_edge_labels, edge_labels)
-            edge_labels.close()
+        edge_labels = open(path + '\\' + 'edge_labels.pkl', 'wb')
+        pkl.dump(diz_edge_labels, edge_labels)
+        edge_labels.close()
 
         ####### I NOMI DEI 4 FILE LI HO MESSI COME "NOME_PKL INVECE CHE NOME.PKL SE NO MI DA ERRORE"
         #### MANCA SECONDA PARTE DEL SUGGERIMENTO
@@ -356,29 +360,32 @@ class DirectedGraph:
     def add_from_files(self, percorso_file):
         '''Aggiunge al grafo G il grafo G' dalla cartella'''
         ###Memorizzo le info dal file
-        with open(percorso_file, 'rb') as file:
-            id_list = open('id_list', 'rb')
-            node_list = pkl.load(id_list)
-            id_list.close()
 
-            adjacency = open('adjacency', 'rb')
-            A_diz = pkl.load('adjacency')
-            adjacency.close()
+        id_list = open(percorso_file + '\\' + 'id_list.pkl', 'rb')
+        node_list = pkl.load(id_list)
+        id_list.close()
 
-            attributes = open('attributes', 'rb')
-            G_prime_attributes = pkl.load('attributes')
-            attributes.close()
+        adjacency = open(percorso_file + '\\' + 'adjacency.pkl', 'rb')
+        A_diz = pkl.load(adjacency)
+        adjacency.close()
 
-            edge_labels = open('adjacency', 'rb')
-            G_prime_edge_labels = pkl.load('edge_labels')
-            edge_labels.close()
+        attributes = open(percorso_file + '\\' + 'attributes.pkl', 'rb')
+        G_prime_attributes = pkl.load(attributes)
+        attributes.close()
+
+        edge_labels = open(percorso_file + '\\' + 'edge_labels.pkl', 'rb')
+        diz_edge_labels = pkl.load(edge_labels)
+        edge_labels.close()
 
         for node in node_list:
-            self.add_nodes(node,**G_prime_attributes['node_labels'][node])
-        for edge in G_prime_edge_labels:
-            self.add_edges(edge, **G_prime_edge_labels[edge].update({'weight' : A_diz[edge]}))
-            
+            self.add_nodes([node],**G_prime_attributes['node_labels'][node])
 
+        for edge in diz_edge_labels:
+            ind1 = node_list.index(edge[0])
+            ind2 = node_list.index(edge[1])
+            diz_edge_labels[edge].update({'weight' : A_diz[(ind1, ind2)]})
+            self.add_edges([edge], **diz_edge_labels[edge])
+            
 
 
     def plot(self):
@@ -400,7 +407,7 @@ class DirectedGraph:
         i = 0
         for id in self.nodes:
             pos_node_plot.update({id : i})
-            ax.text(x[i], y[i], str(id), fontsize = 15, bbox=dict(facecolor='white', alpha=1))
+            ax.text(x[i], y[i], str(id), fontsize = 15, bbox=dict(facecolor='white', alpha=0.75))
             i += 1
              
         ax.scatter(x, y, color='darkgreen', marker= "h")
@@ -409,9 +416,11 @@ class DirectedGraph:
             x_i = [x[pos_node_plot[edge[0]]], x[pos_node_plot[edge[1]]] - x[pos_node_plot[edge[0]]]]
             y_i = [y[pos_node_plot[edge[0]]], y[pos_node_plot[edge[1]]] - y[pos_node_plot[edge[0]]]]
 
-            ax.arrow(x_i[0], y_i[0], x_i[1], y_i[1], length_includes_head = True, head_width = 0.035, head_length = 0.1)
+            ax.arrow(x_i[0], y_i[0], x_i[1], y_i[1], length_includes_head = True, head_width = 0.045, head_length = 0.075)
 
         show()
+
+
 
     def print_info(self):
         '''Stampa informazioni sul grafo'''
