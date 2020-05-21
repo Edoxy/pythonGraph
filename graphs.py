@@ -307,42 +307,46 @@ class DirectedGraph:
             folder_name = self.name
         
         lista_id_nodi=[]
+        node_labels = {}
         for node in self.nodes.keys():
             lista_id_nodi.append(node)
+            node_labels.update({node : self.nodes[node].labels})
+
 
         A = self.compute_adjacency(True)
 
         ### Cartella = file contenente altri file (?)
         with open(percorso_file, 'wb') as folder_name:
             ### Primo file: lista dei nodi
-            id_list_pkl = open(percorso_file, 'wb')
-            pkl.dump(lista_id_nodi, id_list_pkl)
-            id_list_pkl.close()
+            id_list = open(percorso_file, 'wb')
+            pkl.dump(lista_id_nodi, id_list)
+            id_list.close()
 
             ### Secondo file: matrice di adiacenza salvata come dictionary of keys
-            adjacency_pkl = open(percorso_file, 'wb')
-            pkl.dump(dict(A), adjacency_pkl)
-            adjacency_pkl.close()
+            adjacency = open(percorso_file, 'wb')
+            pkl.dump(dict(A), adjacency)
+            adjacency.close()
 
             ### Terzo file: dizionario a 3 chiavi(nome,peso di default,dizionario etichette dei nodi{ik:vk.labels})
-            node_labels = {self.nodes.keys() : self.nodes.labels}
+
+            
             diz_attributi = {'name' : self.name, 'default_weight' : self.default_weight, 'node_labels' : node_labels}
-            attributes_pkl = open(percorso_file, 'wb')
-            pkl.dump(diz_attributi, attributes_pkl)
-            attributes_pkl.close()
+            attributes = open(percorso_file, 'wb')
+            pkl.dump(diz_attributi, attributes)
+            attributes.close()
 
             ### Quarto file: dizionario delle etichette dei lati (tranne il peso)
-            keys = []
-            values = []
+            
+            diz_edge_labels = {}
             for edge in self.get_edges():
-                keys.append(edge)
+                
                 label = self.get_edge_labels(edge)
                 label.pop('weight')
-                values.append(label)
-            diz_edge_labels = {keys : values}
-            edge_labels_pkl = open(percorso_file, 'wb')
-            pkl.dump(diz_edge_labels, edge_labels_pkl)
-            edge_labels_pkl.close()
+                diz_edge_labels.update({edge : label})
+            
+            edge_labels = open(percorso_file, 'wb')
+            pkl.dump(diz_edge_labels, edge_labels)
+            edge_labels.close()
 
         ####### I NOMI DEI 4 FILE LI HO MESSI COME "NOME_PKL INVECE CHE NOME.PKL SE NO MI DA ERRORE"
         #### MANCA SECONDA PARTE DEL SUGGERIMENTO
@@ -353,27 +357,27 @@ class DirectedGraph:
         '''Aggiunge al grafo G il grafo G' dalla cartella'''
         ###Memorizzo le info dal file
         with open(percorso_file, 'rb') as file:
-            id_list_pkl = open('id_list_pkl', 'rb')
-            node_list = pkl.load(id_list_pkl)
-            id_list_pkl.close()
+            id_list = open('id_list', 'rb')
+            node_list = pkl.load(id_list)
+            id_list.close()
 
-            adjacency_pkl = open('adjacency_pkl', 'rb')
-            A_diz = pkl.load('adjacency_pkl')
-            adjacency_pkl.close()
+            adjacency = open('adjacency', 'rb')
+            A_diz = pkl.load('adjacency')
+            adjacency.close()
 
-            attributes_pkl = open('attributes_pkl', 'rb')
-            G_prime_attributes = pkl.load('attributes_pkl')
-            attributes_pkl.close()
+            attributes = open('attributes', 'rb')
+            G_prime_attributes = pkl.load('attributes')
+            attributes.close()
 
-            edge_labels_pkl = open('adjacency_pkl', 'rb')
-            G_prime_edge_labels = pkl.load('edge_labels_pkl')
-            edge_labels_pkl.close()
+            edge_labels = open('adjacency', 'rb')
+            G_prime_edge_labels = pkl.load('edge_labels')
+            edge_labels.close()
 
         for node in node_list:
-            self.add_nodes(node,G_prime_attributes['node_labels'][node])
+            self.add_nodes(node,**G_prime_attributes['node_labels'][node])
         for edge in G_prime_edge_labels:
-            self.add_edges(edge, G_prime_edge_labels['edge'])
-            self.add_edges(edge,A_diz[edge])  ### c' e' di sicuro un modo piu furbo con update del dizionario edge labels
+            self.add_edges(edge, **G_prime_edge_labels[edge].update({'weight' : A_diz[edge]}))
+            
 
 
 
