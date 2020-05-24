@@ -5,6 +5,7 @@ from math import sqrt, sin, cos
 import pickle as pkl
 from matplotlib.pyplot import scatter, plot, text, show, figure, arrow
 import os
+import heapq
 
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
@@ -19,7 +20,7 @@ class DirGraphNode:
 
 
     def get_neighbours(self):
-        '''Restituisce lista di vicini del nodo'''
+        '''Restituisce lista nodi (oggetti) di vicini del nodo'''
         n_out = []
         n_in = []
 
@@ -301,9 +302,6 @@ class DirectedGraph:
             new_graph.nodes[node_id].id = max_id + node_id
             self.nodes.update({max_id + node_id : new_graph.nodes[node_id]})
 
-        
-
-
 
 
     def save(self, percorso_file, folder_name = None):
@@ -396,14 +394,38 @@ class DirectedGraph:
 
 
 
-        def minpath_dijkstra(self, start, finish):
-            '''Restituisce 2 tuple: una rappresentante gli ID del cammino minimo e l'altra contenente i pesi'''
-            ###Controllo peso
-            for labels in self.get_edge_labels(self.get_edges()):
-                if labels['weight'] <= 0:
-                    print('Errore: non tutti i lati hanno peso positivo')
-                    return None, None
+    def minpath_dijkstra(self, start, finish):
+        '''Restituisce 2 tuple: una rappresentante gli ID del cammino minimo e l'altra contenente i pesi'''
+        ###Controllo peso
+        for labels in self.get_edge_labels(self.get_edges()):
+            if labels['weight'] <= 0:
+                print('Errore: non tutti i lati hanno peso positivo')
+                return None, None
+        queue = []
+        for x in self.nodes[start].neighbours_out:
+            #heappush(h, (5, 'write code'))
+            heapq.heappush(queue, (x[1]['weight'], [start, x[0].id], [x[1]['weight']]))
+        if len(queue) == 0:
+                print('Errore: non esiste nessun cammino tra i due nodi')
+                return None, None
+        found = False
+        while found == False:
+            current = heapq.heappop(queue)
+            for y in self.nodes[current[1][-1]].neighbours_out:
+                if y[0].id not in current[1]:
+                    new_weight = current[0] + y[1]['weight']
+                    path = current[1].copy()
+                    path.append(y[0].id)
+                    weights = current[2].copy()
+                    weights.append(y[1]['weight'])
+                    heapq.heappush(queue, (new_weight, path, weights))
+            if len(queue) == 0:
+                print('Errore: non esiste nessun cammino tra i due nodi')
+                return None, None
+            if finish == queue[0][1][-1]:
+                found = True
             
+        return queue[0][1], queue[0][2]
              
 
         
@@ -450,5 +472,37 @@ class DirectedGraph:
             self.nodes[id_node].print_nodes_info()
 
 
+
+    def plotpath(self, list_id):
+        '''rappresentazione grafica del grafo'''
+        #distribuzione sui punti di una circonferenza
+        n_nodi = len(self.nodes)
+        step = 1 / n_nodi
+        x = []
+        y = []
+        pos_node_plot = {}
+
+        fig = figure()
+        ax = fig.add_subplot(111)
+
+        for i in range(n_nodi):
+            x.append(cos(step * i * 2 * numpy.pi))
+            y.append(sin(step * i * 2 * numpy.pi))
+
+        i = 0
+        for id in self.nodes:
+            pos_node_plot.update({id : i})
+            ax.text(x[i], y[i], str(id), fontsize = 15, bbox=dict(facecolor='white', alpha=0.75))
+            i += 1
+             
+        ax.scatter(x, y, color='darkgreen', marker= "h")
+
+        for i in range(len(list_id) - 1):
+            x_i = [x[pos_node_plot[list_id[i]]], x[pos_node_plot[list_id[i + 1]]] - x[pos_node_plot[list_id[i]]]]
+            y_i = [y[pos_node_plot[list_id[i]]], y[pos_node_plot[list_id[i + 1]]] - y[pos_node_plot[list_id[i]]]]
+
+            ax.arrow(x_i[0], y_i[0], x_i[1], y_i[1], length_includes_head = True, head_width = 0.045, head_length = 0.075)
+
+        show()
 
 ##############################################################################################
