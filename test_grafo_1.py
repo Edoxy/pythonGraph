@@ -44,7 +44,7 @@ Grafo_3.print_info()
 #Grafo_1.plot()
 
 ##test save
-#Grafo_1.save('C:\\Users\\Pace\\Desktop\\Salvataggio', 'Prova')
+##Grafo_1.save('C:\\Users\\Lorenzo\\Desktop\\Salvataggio')
 Grafo_4 = graphs.DirectedGraph()
-Grafo_4.add_from_files('C:\\Users\\Pace\\Desktop\\Salvataggio\\Prova')
-Grafo_4.plot()
+Grafo_2.add_from_files('C:\\Users\\Lorenzo\\Desktop\\Salvataggio\\mappa_ipad_1')
+Grafo_2.plot()

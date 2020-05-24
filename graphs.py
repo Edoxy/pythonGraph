@@ -292,13 +292,17 @@ class DirectedGraph:
 
 
 
-    def add_graph(self, new_graph):
+    def add_graph(self, graph):
         '''Dato un nuovo Grafo, lo connette a quello attuale; se i nodi sono già esistenti si aggirnano solo le connessioni'''
-        new_edges = new_graph.get_edges()
-        new_edges_lables = new_graph.get_edge_labels(new_edges)#idea di implementare un default?    
-        for i in range(len(new_edges)):
+        max_id = self.auto_add_nodes(0) 
+        new_graph = graph.copy()
+        #aggiungo nodi al grafo
+        for node_id in new_graph.nodes:
+            new_graph.nodes[node_id].id = max_id + node_id
+            self.nodes.update({max_id + node_id : new_graph.nodes[node_id]})
 
-            self.add_edges([new_edges[i]], **new_edges_lables[i])
+        
+
 
 
 
@@ -352,7 +356,7 @@ class DirectedGraph:
         pkl.dump(diz_edge_labels, edge_labels)
         edge_labels.close()
 
-        ####### I NOMI DEI 4 FILE LI HO MESSI COME "NOME_PKL INVECE CHE NOME.PKL SE NO MI DA ERRORE"
+        
         #### MANCA SECONDA PARTE DEL SUGGERIMENTO
 
 
@@ -377,14 +381,32 @@ class DirectedGraph:
         diz_edge_labels = pkl.load(edge_labels)
         edge_labels.close()
 
+        new_graph = DirectedGraph()
+
         for node in node_list:
-            self.add_nodes([node],**G_prime_attributes['node_labels'][node])
+            new_graph.add_nodes([node],**G_prime_attributes['node_labels'][node])
 
         for edge in diz_edge_labels:
             ind1 = node_list.index(edge[0])
             ind2 = node_list.index(edge[1])
             diz_edge_labels[edge].update({'weight' : A_diz[(ind1, ind2)]})
-            self.add_edges([edge], **diz_edge_labels[edge])
+            new_graph.add_edges([edge], **diz_edge_labels[edge])
+
+        self.add_graph(new_graph)
+
+
+
+        def minpath_dijkstra(self, start, finish):
+            '''Restituisce 2 tuple: una rappresentante gli ID del cammino minimo e l'altra contenente i pesi'''
+            ###Controllo peso
+            for labels in self.get_edge_labels(self.get_edges()):
+                if labels['weight'] <= 0:
+                    print('Errore: non tutti i lati hanno peso positivo')
+                    return None, None
+            
+             
+
+        
             
 
 
