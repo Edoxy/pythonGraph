@@ -6,6 +6,7 @@ import pickle as pkl
 from matplotlib.pyplot import scatter, plot, text, show, figure, arrow
 import os
 import heapq
+import random
 
 class DirGraphNode:
     """Classe dei nodi di un grafo"""
@@ -425,11 +426,9 @@ class DirectedGraph:
             if finish == queue[0][1][-1]:
                 found = True
             
+        print(queue[0][0])
         return queue[0][1], queue[0][2]
-             
-
-        
-            
+               
 
 
     def plot(self):
@@ -444,9 +443,30 @@ class DirectedGraph:
         fig = figure()
         ax = fig.add_subplot(111)
 
-        for i in range(n_nodi):
+        '''for i in range(n_nodi):
             x.append(cos(step * i * 2 * numpy.pi))
-            y.append(sin(step * i * 2 * numpy.pi))
+            y.append(sin(step * i * 2 * numpy.pi))'''
+        #disegno su cerchi concenrici
+        k = 0
+        a = 5
+        while n_nodi > a:
+            k += 1
+            a += (5*pow(2, k))
+        
+        j = 0
+        while j < (a - (5*pow(2, k))):
+            for z in range(k):
+                step = 1 / (5*pow(2, z))
+                for i in range(5*pow(2, z)):
+                    x.append(0.5 * (z+1) * cos(step * i * 2 * numpy.pi))
+                    y.append(0.5 * (z+1) * sin(step * i * 2 * numpy.pi))
+                    j += 1
+        rimanenti = n_nodi - j
+        step = 1 / rimanenti
+        for i in range(rimanenti):
+            x.append(0.5 * (z+2) * cos(step * i * 2 * numpy.pi))
+            y.append(0.5 * (z+2) * sin(step * i * 2 * numpy.pi))
+
 
         i = 0
         for id in self.nodes:
@@ -485,9 +505,28 @@ class DirectedGraph:
         fig = figure()
         ax = fig.add_subplot(111)
 
-        for i in range(n_nodi):
-            x.append(cos(step * i * 2 * numpy.pi))
-            y.append(sin(step * i * 2 * numpy.pi))
+        #disegno su cerchi concenrici
+        k = 0
+        a = 5
+        while n_nodi > a:
+            k += 1
+            a += (5*pow(2, k))
+        
+        j = 0
+        while j < (a - (5*pow(2, k))):
+            for z in range(k):
+                step = 1 / (5*pow(2, z))
+                for i in range(5*pow(2, z)):
+                    x.append(0.5 * (z+1) * cos(step * i * 2 * numpy.pi))
+                    y.append(0.5 * (z+1) * sin(step * i * 2 * numpy.pi))
+                    j += 1
+        rimanenti = n_nodi - j
+        step = 1 / rimanenti
+        for i in range(rimanenti):
+            x.append(0.5 * (z+2) * cos(step * i * 2 * numpy.pi))
+            y.append(0.5 * (z+2) * sin(step * i * 2 * numpy.pi))
+
+
 
         i = 0
         for id in self.nodes:
