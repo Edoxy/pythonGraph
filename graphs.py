@@ -361,7 +361,7 @@ class DirectedGraph:
 
 
     def add_from_files(self, percorso_file):
-        '''Aggiunge al grafo G il grafo G' dalla cartella'''
+        '''Aggiunge al grafo G il grafo G' primo dalla cartella'''
         ###Memorizzo le info dal file
 
         id_list = open(percorso_file + '\\' + 'id_list.pkl', 'rb')
