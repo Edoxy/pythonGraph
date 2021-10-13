@@ -3,7 +3,7 @@ import numpy
 from scipy.sparse import dok_matrix
 from math import sqrt, sin, cos
 import pickle as pkl
-from matplotlib.pyplot import scatter, plot, text, show, figure, arrow
+from matplotlib.pyplot import close, scatter, plot, text, show, figure, arrow
 import os
 import heapq
 import random
@@ -43,6 +43,15 @@ class DirGraphNode:
         for x in self.neighbours_in:
             deg_in += 1
         return (deg_out, deg_in)
+
+    def degree(self):
+        '''Restituisce il totale grado OUT e IN del nodo scelto'''
+        tot = 0
+        for x in self.neighbours_out:
+            tot += 1
+        for x in self.neighbours_in:
+            tot += 1
+        return tot
 
 
 
@@ -286,7 +295,6 @@ class DirectedGraph:
     def add_from_adjacency(self, A_s):
         '''Aggiunge nuovi nodi al grafo e li collega tra loro secondo la matrice A'''
         A = dok_matrix(A_s)#sparsizza
-        A = A_s
         N, _ = A.get_shape()
         id = self.auto_add_nodes(N)
         for edge in A.keys():
@@ -430,8 +438,25 @@ class DirectedGraph:
         return queue[0][1], queue[0][2]
                
 
+    def depthtree(self, start):
+        visited_node = []
 
-    def plot(self):
+        def ricorsione(node):
+            if node in visited_node:
+                return
+            visited_node.append(node)
+
+            for x in self.nodes[node].neighbours_out:
+                ricorsione(x[0].id)
+            return
+        ricorsione(start)
+
+        return visited_node
+
+
+
+
+    def plot(self, list_id = []):
         '''rappresentazione grafica del grafo'''
         #distribuzione sui punti di una circonferenza
         n_nodi = len(self.nodes)
@@ -469,18 +494,28 @@ class DirectedGraph:
 
 
         i = 0
-        for id in self.nodes:
+        sorted_nodes = [x for x in self.nodes.keys()]
+        sorted_nodes.sort(key=lambda x: self.nodes[x].degree(), reverse=True)
+        for id in sorted_nodes:
             pos_node_plot.update({id : i})
-            ax.text(x[i], y[i], str(id), fontsize = 15, bbox=dict(facecolor='white', alpha=0.75))
+            ax.text(x[i], y[i], str(id), color = 'green', fontsize = 10)
             i += 1
              
-        ax.scatter(x, y, color='darkgreen', marker= "h")
+        ax.scatter(x, y, color='orange', s=60)
 
-        for edge in self.get_edges():
-            x_i = [x[pos_node_plot[edge[0]]], x[pos_node_plot[edge[1]]] - x[pos_node_plot[edge[0]]]]
-            y_i = [y[pos_node_plot[edge[0]]], y[pos_node_plot[edge[1]]] - y[pos_node_plot[edge[0]]]]
-
-            ax.arrow(x_i[0], y_i[0], x_i[1], y_i[1], length_includes_head = True, head_width = 0.045, head_length = 0.075)
+        x_i = []
+        y_i = []
+        if len(list_id) == 0:
+            for edge in self.get_edges():
+                x_i = [x[pos_node_plot[edge[0]]], x[pos_node_plot[edge[1]]] - x[pos_node_plot[edge[0]]]]
+                y_i = [y[pos_node_plot[edge[0]]], y[pos_node_plot[edge[1]]] - y[pos_node_plot[edge[0]]]]
+                ax.arrow(x_i[0], y_i[0], x_i[1], y_i[1], color='gray' ,length_includes_head = True, head_width = 0.025, head_length = 0.035, alpha=0.75)
+        else:
+            for i in range(len(list_id) - 1):
+                x_i = [x[pos_node_plot[list_id[i]]], x[pos_node_plot[list_id[i + 1]]] - x[pos_node_plot[list_id[i]]]]
+                y_i = [y[pos_node_plot[list_id[i]]], y[pos_node_plot[list_id[i + 1]]] - y[pos_node_plot[list_id[i]]]]
+                ax.arrow(x_i[0], y_i[0], x_i[1], y_i[1], color='gray' ,length_includes_head = True, head_width = 0.025, head_length = 0.035, alpha=0.75)
+            
 
         show()
 
@@ -493,7 +528,7 @@ class DirectedGraph:
 
 
 
-    def plotpath(self, list_id):
+    def plotpath(self, list_id = []):
         '''rappresentazione grafica del grafo'''
         #distribuzione sui punti di una circonferenza
         n_nodi = len(self.nodes)
@@ -529,7 +564,9 @@ class DirectedGraph:
 
 
         i = 0
-        for id in self.nodes:
+        sorted_nodes = [x for x in self.nodes.keys()]
+        sorted_nodes.sort(key=lambda x: self.nodes[x].degree(), reverse=True)
+        for id in sorted_nodes:
             pos_node_plot.update({id : i})
             ax.text(x[i], y[i], str(id), fontsize = 15, bbox=dict(facecolor='white', alpha=0.75))
             i += 1
